@@ -70,7 +70,6 @@ func Login(c *gin.Context) {
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
 	})

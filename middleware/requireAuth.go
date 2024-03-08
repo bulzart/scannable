@@ -13,7 +13,7 @@ import (
 
 func RequireAuth(c *gin.Context) {
 
-	tokenString := c.Request.Header.Get("Authorization")
+	tokenString := c.GetHeader("Authorization")
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
