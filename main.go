@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func init() {
@@ -17,6 +18,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println(time.Now())
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -32,11 +34,12 @@ func main() {
 
 	qr := r.Group("/qr")
 	qr.Use(middleware.VerifyOwner)
-	{
-		qr.GET("getUserQRs", controllers.GetUserQRs)
-		qr.PUT("update/:id", controllers.UpdateQR)
-		qr.DELETE("delete/:id", controllers.DeleteQR)
-	}
+
+	qr.GET("getUserQRs", controllers.GetUserQRs)
+	qr.PUT("update/:id", controllers.UpdateQR)
+	qr.DELETE("delete/:id", controllers.DeleteQR)
+	qr.POST("redirect/create/:id", controllers.CreateRedirect)
+	qr.GET("redirect/latest/:id", controllers.GetLatestRedirect)
 
 	err := r.Run()
 	if err != nil {

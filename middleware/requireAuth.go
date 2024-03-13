@@ -8,12 +8,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
 func RequireAuth(c *gin.Context) {
 
-	tokenString := c.GetHeader("Authorization")
+	tokenString := strings.Split(c.GetHeader("Authorization"), " ")[1]
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
