@@ -93,6 +93,20 @@ func UpdateQR(c *gin.Context) {
 		"message": "QR updated successfully!",
 	})
 }
+
+func GetQRbyId(c *gin.Context) {
+	id := c.Param("id")
+	var qrRedirect models.QR_
+	initializers.DB.Find(&qrRedirect, id)
+	if qrRedirect.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "QR not found!",
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"redirects": &qrRedirect,
+	})
+}
 func DeleteQR(c *gin.Context) {
 	id := c.Param("id")
 	if initializers.DB.Delete(&models.QR_{}, id).Error != nil {

@@ -28,13 +28,14 @@ func main() {
 	}))
 
 	r.POST("/login", controllers.Login)
+	r.GET("/", controllers.Dashboard)
 	r.Use(middleware.RequireAuth)
 	r.POST("/signup", controllers.SignupPost)
 	r.POST("create", controllers.CreateQR)
 
 	qr := r.Group("/qr")
 	qr.Use(middleware.VerifyOwner)
-
+	qr.GET("/:id", controllers.GetQRbyId)
 	qr.GET("getUserQRs", controllers.GetUserQRs)
 	qr.PUT("update/:id", controllers.UpdateQR)
 	qr.DELETE("delete/:id", controllers.DeleteQR)
