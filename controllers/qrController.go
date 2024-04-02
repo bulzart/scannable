@@ -15,8 +15,8 @@ import (
 
 func CreateQR(ctx *gin.Context) {
 	var body struct {
-		Title string
-		Url   string
+		Title string `json:"title"`
+		Url   string `json:"url"`
 	}
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
