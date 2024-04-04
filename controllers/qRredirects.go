@@ -16,6 +16,7 @@ func CreateRedirect(c *gin.Context) {
 		StartDate time.Time `binding:"required" json:"start_date"`
 		EndDate   time.Time `binding:"required" json:"end_date"`
 	}
+
 	if c.ShouldBindJSON(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not read body or fields not correct",

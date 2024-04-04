@@ -8,9 +8,12 @@ import (
 	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
 	"image/png"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 func CreateQR(ctx *gin.Context) {
@@ -18,6 +21,10 @@ func CreateQR(ctx *gin.Context) {
 		Title string
 		Url   string
 	}
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random integer between 0 and 100
+	randomNumber := rand.Intn(999999999999)
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": "Could not read the body",
@@ -43,7 +50,7 @@ func CreateQR(ctx *gin.Context) {
 			fmt.Println(err)
 			return
 		}
-		file, _ := os.Create("qrcodes/qrcode.png")
+		file, _ := os.Create("qrcodes/qrcode" + strconv.Itoa(randomNumber) + ".png")
 
 		user, exists := ctx.Get("user")
 		if !exists {
@@ -51,17 +58,8 @@ func CreateQR(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(400, gin.H{"message": "User not retrieved"})
 			return
 		}
-		_qr := models.QR_{Url: body.Url, UserID: user.(models.User).ID}
-		if initializers.DB.Create(&_qr).Error != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "Error while saving the QR",
-			})
-			return
-		}
-		defer file.Close()
-		png.Encode(file, qrCode)
 
-		qr_ := models.QR_{Url: body.Url, UserID: user.(models.User).ID}
+		qr_ := models.QR_{Url: body.Url, UserID: user.(models.User).ID, ImageURL: "qrcode" + strconv.Itoa(randomNumber)}
 		if err := initializers.DB.Create(&qr_).Error; err != nil {
 			fmt.Println(err)
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -69,6 +67,8 @@ func CreateQR(ctx *gin.Context) {
 			})
 			return
 		}
+		defer file.Close()
+		png.Encode(file, qrCode)
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "QR created successfully!",
 		})
