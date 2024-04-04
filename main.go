@@ -32,7 +32,14 @@ func main() {
 	r.Use(middleware.RequireAuth)
 	r.POST("/signup", controllers.SignupPost)
 	r.POST("create", controllers.CreateQR)
+	r.GET("/image/:image", func(c *gin.Context) {
 
+		// Load your image file
+		imagePath := "qrcodes/" + c.Param("image") + ".png"
+
+		// Serve the image file
+		c.File(imagePath)
+	})
 	qr := r.Group("/qr")
 	qr.Use(middleware.VerifyOwner)
 	qr.GET("/:id", controllers.GetQRbyId)

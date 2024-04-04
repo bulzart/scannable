@@ -15,14 +15,23 @@ import (
 
 func CreateQR(ctx *gin.Context) {
 	var body struct {
-		Title string `json:"title"`
-		Url   string `json:"url"`
+		Title string
+		Url   string
 	}
 	if ctx.Bind(&body) != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Could not reqad the body",
+			"message": "Could not read the body",
 		})
+		return
 	}
+
+	if !strings.HasPrefix(body.Url, "https://") {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "URL must start with 'https://'",
+		})
+		return
+	}
+
 	var QR_ models.QR_
 	url := strings.Split(body.Url, "://")
 	initializers.DB.First(&QR_, "url like ?", "%"+url[1]+"%")
@@ -51,12 +60,27 @@ func CreateQR(ctx *gin.Context) {
 		}
 		defer file.Close()
 		png.Encode(file, qrCode)
+
+		qr_ := models.QR_{Url: body.Url, UserID: user.(models.User).ID}
+		if err := initializers.DB.Create(&qr_).Error; err != nil {
+			fmt.Println(err)
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": "Error while saving the QR",
+			})
+			return
+		}
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "QR created successfully!",
 		})
-
+		return
 	}
+
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"message": "The ulr " + url[1] + " is already in use",
+	})
+
 }
+
 func GetUserQRs(c *gin.Context) {
 	user, exists := c.Get("user")
 	if !exists {
