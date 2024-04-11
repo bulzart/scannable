@@ -62,16 +62,18 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
+	expDate := time.Now().Add(time.Hour * 24).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": expDate,
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.JSON(http.StatusOK, gin.H{
-		"token": tokenString,
+		"token":    tokenString,
+		"exp_date": expDate,
 	})
 }
 
